@@ -1,8 +1,3 @@
-"""
-Results Analysis Script
-Analyzes test_results.json and generates detailed insights
-"""
-
 import json
 import numpy as np
 from collections import defaultdict
@@ -22,8 +17,8 @@ def compare_configurations(results):
     
     configs = results['configurations_tested']
     
-    # Create comparison table
-    print("\n📊 METRIC COMPARISON TABLE")
+    
+    print("\n METRIC COMPARISON TABLE")
     print("-" * 80)
     print(f"{'Metric':<25} {'Small (250)':<15} {'Medium (550)':<15} {'Large (900)':<15}")
     print("-" * 80)
@@ -46,7 +41,7 @@ def compare_configurations(results):
     
     print("-" * 80)
     
-    # Identify best configuration per metric
+    
     print("\n🏆 BEST CONFIGURATION PER METRIC")
     print("-" * 80)
     
@@ -55,9 +50,9 @@ def compare_configurations(results):
         config_names = [config['configuration']['name'] for config in configs]
         
         if metric_key == 'avg_response_time':
-            best_idx = np.argmin(values)  # Lower is better for response time
+            best_idx = np.argmin(values)  
         else:
-            best_idx = np.argmax(values)  # Higher is better for quality metrics
+            best_idx = np.argmax(values)  
         
         print(f"{metric_name:<25} → {config_names[best_idx]:<20} ({values[best_idx]:.3f})")
     
@@ -72,10 +67,10 @@ def analyze_question_types(results):
     
     for config in results['configurations_tested']:
         config_name = config['configuration']['name']
-        print(f"\n📋 Configuration: {config_name}")
+        print(f"\n Configuration: {config_name}")
         print("-" * 80)
         
-        # Group by question type
+        
         type_metrics = defaultdict(list)
         
         for result in config['per_question_results']:
@@ -87,7 +82,7 @@ def analyze_question_types(results):
                     'faithfulness': result['faithfulness']
                 })
         
-        # Calculate averages per type
+        
         for q_type, metrics in type_metrics.items():
             avg_rouge = np.mean([m['rouge_l'] for m in metrics])
             avg_cosine = np.mean([m['cosine_similarity'] for m in metrics])
@@ -128,7 +123,7 @@ def identify_failure_modes(results):
                     })
         
         if low_performers:
-            print(f"\n⚠️  Found {len(low_performers)} low-performing questions:")
+            print(f"\n  Found {len(low_performers)} low-performing questions:")
             for item in low_performers[:5]:  # Show top 5
                 print(f"\n  Q{item['id']}: {item['question']}")
                 print(f"    ROUGE-L: {item['rouge_l']:.3f} | Cosine: {item['cosine']:.3f} | Faithfulness: {item['faith']:.3f}")
@@ -144,11 +139,11 @@ def generate_recommendations(results):
     
     configs = results['configurations_tested']
     
-    # Calculate overall scores (weighted average)
+    
     overall_scores = []
     for config in configs:
         metrics = config['aggregate_metrics']
-        # Weight: 30% retrieval, 40% quality, 30% semantic
+        
         score = (
             0.30 * (metrics['avg_hit_rate'] + metrics['avg_mrr'] + metrics['avg_precision_at_k']) / 3 +
             0.40 * (metrics['avg_answer_relevance'] + metrics['avg_faithfulness'] + metrics['avg_rouge_l']) / 3 +
@@ -159,30 +154,30 @@ def generate_recommendations(results):
     best_config_idx = np.argmax(overall_scores)
     best_config = configs[best_config_idx]
     
-    print(f"\n🎯 OPTIMAL CONFIGURATION:")
+    print(f"\n OPTIMAL CONFIGURATION:")
     print(f"   Name: {best_config['configuration']['name']}")
     print(f"   Chunk Size: {best_config['configuration']['chunk_size']}")
     print(f"   Chunk Overlap: {best_config['configuration']['chunk_overlap']}")
     print(f"   Overall Score: {overall_scores[best_config_idx]:.3f}")
     
-    print("\n💡 KEY INSIGHTS:")
+    print("\n KEY INSIGHTS:")
     
-    # Retrieval quality
+    
     best_retrieval = max(configs, key=lambda x: x['aggregate_metrics']['avg_hit_rate'])
     print(f"\n1. Best Retrieval Performance:")
     print(f"   → {best_retrieval['configuration']['name']} (Hit Rate: {best_retrieval['aggregate_metrics']['avg_hit_rate']:.3f})")
     
-    # Answer quality
+    
     best_quality = max(configs, key=lambda x: x['aggregate_metrics']['avg_rouge_l'])
     print(f"\n2. Best Answer Quality:")
     print(f"   → {best_quality['configuration']['name']} (ROUGE-L: {best_quality['aggregate_metrics']['avg_rouge_l']:.3f})")
     
-    # Speed
+    
     fastest = min(configs, key=lambda x: x['aggregate_metrics']['avg_response_time'])
     print(f"\n3. Fastest Response:")
     print(f"   → {fastest['configuration']['name']} ({fastest['aggregate_metrics']['avg_response_time']:.2f}s)")
     
-    print("\n📌 RECOMMENDATIONS:")
+    print("\n RECOMMENDATIONS:")
     print("\n1. For Production Use:")
     print(f"   Use {best_config['configuration']['name']} configuration")
     print(f"   - Balanced performance across all metrics")
@@ -205,14 +200,14 @@ def generate_recommendations(results):
 
 def generate_markdown_report(results):
     """Generate detailed markdown report"""
-    print("\n📝 Generating results_analysis.md...")
+    print("\n Generating results_analysis.md...")
     
     with open('results_analysis.md', 'w', encoding='utf-8') as f:
         f.write("# RAG Evaluation Results - Detailed Analysis\n\n")
         f.write(f"**Evaluation Date:** {results['evaluation_timestamp']}\n\n")
         f.write("---\n\n")
         
-        # Executive Summary
+        
         f.write("## Executive Summary\n\n")
         configs = results['configurations_tested']
         overall_scores = []
@@ -233,10 +228,10 @@ def generate_markdown_report(results):
         f.write(f"- Chunk Overlap: {best_config['configuration']['chunk_overlap']}\n")
         f.write(f"- Overall Score: {overall_scores[best_idx]:.3f}\n\n")
         
-        # Detailed Metrics
+        
         f.write("## Detailed Metrics Comparison\n\n")
         f.write("| Metric | Small Chunks | Medium Chunks | Large Chunks |\n")
-        f.write("|--------|--------------|---------------|---------------|\n")
+        
         
         metrics_list = [
             ('avg_hit_rate', 'Hit Rate'),
@@ -251,7 +246,7 @@ def generate_markdown_report(results):
             values = [config['aggregate_metrics'][metric_key] for config in configs]
             f.write(f"| {metric_name} | {values[0]:.3f} | {values[1]:.3f} | {values[2]:.3f} |\n")
         
-        # Recommendations
+        
         f.write("\n## Recommendations\n\n")
         f.write("### 1. Optimal Configuration\n\n")
         f.write(f"Use **{best_config['configuration']['name']}** for production:\n")
@@ -270,7 +265,7 @@ def generate_markdown_report(results):
         f.write("\n---\n\n")
         f.write("*Report generated automatically by analyze_results.py*\n")
     
-    print("✓ Report saved to results_analysis.md")
+    print(" Report saved to results_analysis.md")
 
 
 def main():
@@ -289,7 +284,7 @@ def main():
         generate_markdown_report(results)
         
         print("\n" + "="*80)
-        print("✓ Analysis Complete!")
+        print(" Analysis Complete!")
         print("="*80)
         
     except FileNotFoundError:
