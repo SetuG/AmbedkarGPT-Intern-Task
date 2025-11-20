@@ -30,3 +30,6 @@ Thumbs.db
 
 
 ehthumbs.db
+eval_chroma_db_large_chunks/
+eval_chroma_db_medium_chunks/
+eval_chroma_db_small_chunks/

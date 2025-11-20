@@ -132,7 +132,7 @@ def main():
     print("RAG Q&A System - Dr. B.R. Ambedkar's Speech")
     print("="*60)
     
-    speech_file = "speech.txt"
+    speech_file = "D:\Setu\ambedkar_project_2\corpus\speech.txt"
     persist_dir = "./chroma_db"
     
     
